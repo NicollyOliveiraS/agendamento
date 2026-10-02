@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Agendar {{ service.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <p><a class="btn-ghost" href="{{ url_for('public.index') }}">&larr; Voltar aos serviços</a></p>
+
+    <h1>Agendar: {{ service.name }}</h1>
+    <p class="muted">{{ service.duration_formatted }} · {{ service.price_formatted }}</p>
+
+    <form class="form-card mt-1" method="POST" id="booking-form" novalidate
+          data-service-id="{{ service.id }}"
+          data-availability-url="{{ url_for('public.api_availability') }}">
+
+      <fieldset>
+        <legend>1. Data e horário</legend>
+
+        <div class="field">
+          <label for="date">Data do atendimento</label>
+          <input type="date" id="date" name="date" min="{{ today }}" max="{{ max_date }}"
+                 value="{{ selected_date or form_data.get('date', '') }}" required>
+          {% if errors.date %}<div class="field-error">{{ errors.date }}</div>{% endif %}
+        </div>
+
+        <div class="field">
+          <label>Horário disponível</label>
+          <div id="slots-container">
+            {% if selected_date %}
+              {% if slots %}
+                <div class="slots-grid" id="slots-grid">
+                  {% for slot in slots %}
+                    <button type="button" class="slot-btn" data-time="{{ slot.strftime('%H:%M') }}">{{ slot.strftime('%H:%M') }}</button>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="slots-empty">Nenhum horário disponível nessa data. Escolha outra data.</p>
+              {% endif %}
+            {% else %}
+              <p class="slots-empty">Selecione uma data para ver os horários disponíveis.</p>
+            {% endif %}
+          </div>
+          <input type="hidden" id="time" name="time" value="{{ form_data.get('time', '') }}" required>
+          {% if errors.time %}<div class="field-error">{{ errors.time }}</div>{% endif %}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Seus dados</legend>
+
+        <div class="field">
+          <label for="client_name">Nome completo</label>
+          <input type="text" id="client_name" name="client_name" value="{{ form_data.get('client_name', '') }}" required>
+          {% if errors.client_name %}<div class="field-error">{{ errors.client_name }}</div>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="client_contact">Telefone ou e-mail</label>
+          <input type="text" id="client_contact" name="client_contact" value="{{ form_data.get('client_contact', '') }}"
+                 placeholder="(11) 91234-5678" required>
+          {% if errors.client_contact %}<div class="field-error">{{ errors.client_contact }}</div>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="notes">Observações (opcional)</label>
+          <textarea id="notes" name="notes" maxlength="300">{{ form_data.get('notes', '') }}</textarea>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block">Solicitar agendamento</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}

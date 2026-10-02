@@ -1,0 +1,98 @@
+{% extends "admin/base.html" %}
+{% block title %}Horários e políticas · Painel{% endblock %}
+
+{% block content %}
+<h1>Horários e políticas</h1>
+
+<div class="card-plain">
+  <h2 class="mt-0">Dados gerais e regras de agendamento</h2>
+  <form method="POST" action="{{ url_for('admin.schedule_settings') }}">
+    <input type="hidden" name="form_type" value="policies">
+
+    <div class="row">
+      <div class="field" style="flex:1; min-width:200px;">
+        <label for="business_name">Nome do negócio</label>
+        <input type="text" id="business_name" name="business_name" value="{{ settings.business_name }}" required>
+      </div>
+      <div class="field" style="flex:1; min-width:200px;">
+        <label for="business_type">Tipo de negócio</label>
+        <input type="text" id="business_type" name="business_type" value="{{ settings.business_type }}" placeholder="Salão, oficina, aulas particulares...">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex:1; min-width:200px;">
+        <label for="phone">Telefone</label>
+        <input type="text" id="phone" name="phone" value="{{ settings.phone }}">
+      </div>
+      <div class="field" style="flex:1; min-width:200px;">
+        <label for="address">Endereço</label>
+        <input type="text" id="address" name="address" value="{{ settings.address }}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="min-width:180px;">
+        <label for="slot_interval_minutes">Intervalo entre opções de horário (min)</label>
+        <input type="number" id="slot_interval_minutes" name="slot_interval_minutes" value="{{ settings.slot_interval_minutes }}" min="5" max="120" step="5" required>
+        <div class="hint">De quanto em quanto tempo o cliente pode começar um atendimento.</div>
+      </div>
+      <div class="field" style="min-width:180px;">
+        <label for="buffer_minutes">Intervalo mínimo entre atendimentos (min)</label>
+        <input type="number" id="buffer_minutes" name="buffer_minutes" value="{{ settings.buffer_minutes }}" min="0" max="120" step="5" required>
+        <div class="hint">Tempo de folga obrigatório após cada atendimento.</div>
+      </div>
+      <div class="field" style="min-width:180px;">
+        <label for="cancellation_hours">Prazo mínimo p/ cancelamento (horas)</label>
+        <input type="number" id="cancellation_hours" name="cancellation_hours" value="{{ settings.cancellation_hours }}" min="0" max="168" required>
+        <div class="hint">Quantas horas de antecedência o cliente precisa ter para cancelar online.</div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar configurações</button>
+  </form>
+</div>
+
+<div class="card-plain mt-2">
+  <h2 class="mt-0">Horário de funcionamento semanal</h2>
+  <p class="muted">Defina os dias abertos, horário de atendimento e uma pausa opcional (ex.: almoço) para cada dia.</p>
+
+  <form method="POST" action="{{ url_for('admin.schedule_settings') }}">
+    <input type="hidden" name="form_type" value="working_hours">
+
+    {% for wh in working_hours %}
+      <div class="wh-row">
+        <div class="day-name">{{ wh.weekday_name }}</div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="day_{{ wh.weekday }}_is_open" name="day_{{ wh.weekday }}_is_open" {{ 'checked' if wh.is_open }}>
+          <label for="day_{{ wh.weekday }}_is_open" class="mb-0">Aberto</label>
+        </div>
+        <div class="wh-fields">
+          <div>
+            <label for="day_{{ wh.weekday }}_open">Abertura</label>
+            <input type="time" id="day_{{ wh.weekday }}_open" name="day_{{ wh.weekday }}_open"
+                   value="{{ wh.open_time.strftime('%H:%M') if wh.open_time else '' }}">
+          </div>
+          <div>
+            <label for="day_{{ wh.weekday }}_close">Fechamento</label>
+            <input type="time" id="day_{{ wh.weekday }}_close" name="day_{{ wh.weekday }}_close"
+                   value="{{ wh.close_time.strftime('%H:%M') if wh.close_time else '' }}">
+          </div>
+          <div>
+            <label for="day_{{ wh.weekday }}_break_start">Início da pausa</label>
+            <input type="time" id="day_{{ wh.weekday }}_break_start" name="day_{{ wh.weekday }}_break_start"
+                   value="{{ wh.break_start.strftime('%H:%M') if wh.break_start else '' }}">
+          </div>
+          <div>
+            <label for="day_{{ wh.weekday }}_break_end">Fim da pausa</label>
+            <input type="time" id="day_{{ wh.weekday }}_break_end" name="day_{{ wh.weekday }}_break_end"
+                   value="{{ wh.break_end.strftime('%H:%M') if wh.break_end else '' }}">
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary mt-1">Salvar horário semanal</button>
+  </form>
+</div>
+{% endblock %}

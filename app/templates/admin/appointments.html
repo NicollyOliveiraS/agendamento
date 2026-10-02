@@ -1,0 +1,84 @@
+{% extends "admin/base.html" %}
+{% block title %}Agendamentos · Painel{% endblock %}
+
+{% block content %}
+<h1>Agendamentos</h1>
+
+<form class="filter-bar" method="GET" action="{{ url_for('admin.appointments') }}">
+  <div class="field">
+    <label for="f-name">Nome do cliente</label>
+    <input type="text" id="f-name" name="name" value="{{ filters.name }}" placeholder="Buscar por nome">
+  </div>
+  <div class="field">
+    <label for="f-date">Data</label>
+    <input type="date" id="f-date" name="date" value="{{ filters.date }}">
+  </div>
+  <div class="field">
+    <label for="f-status">Status</label>
+    <select id="f-status" name="status">
+      <option value="">Todos</option>
+      <option value="pendente" {{ 'selected' if filters.status == 'pendente' }}>Pendente</option>
+      <option value="confirmado" {{ 'selected' if filters.status == 'confirmado' }}>Confirmado</option>
+      <option value="concluido" {{ 'selected' if filters.status == 'concluido' }}>Concluído</option>
+      <option value="cancelado" {{ 'selected' if filters.status == 'cancelado' }}>Cancelado</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Filtrar</button>
+  <a class="btn btn-secondary" href="{{ url_for('admin.appointments') }}">Limpar</a>
+</form>
+
+{% if appointments %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Horário</th>
+          <th>Cliente</th>
+          <th>Contato</th>
+          <th>Serviço</th>
+          <th>Código</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in appointments %}
+          <tr>
+            <td>{{ appt.date.strftime('%d/%m/%Y') }}</td>
+            <td>{{ appt.start_time.strftime('%H:%M') }}–{{ appt.end_time.strftime('%H:%M') }}</td>
+            <td>{{ appt.client_name }}</td>
+            <td>{{ appt.client_contact }}</td>
+            <td>{{ appt.service.name }}</td>
+            <td>{{ appt.code }}</td>
+            <td><span class="badge badge-{{ appt.status }}">{{ appt.status_label }}</span></td>
+            <td class="actions">
+              {% if appt.status == "pendente" %}
+                <form method="POST" action="{{ url_for('admin.update_appointment_status', appointment_id=appt.id) }}">
+                  <input type="hidden" name="status" value="confirmado">
+                  <button type="submit" class="btn btn-secondary btn-sm">Confirmar</button>
+                </form>
+              {% endif %}
+              {% if appt.status in ("pendente", "confirmado") %}
+                <form method="POST" action="{{ url_for('admin.update_appointment_status', appointment_id=appt.id) }}">
+                  <input type="hidden" name="status" value="concluido">
+                  <button type="submit" class="btn btn-secondary btn-sm">Concluir</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.update_appointment_status', appointment_id=appt.id) }}"
+                      onsubmit="return confirm('Cancelar este agendamento?');">
+                  <input type="hidden" name="status" value="cancelado">
+                  <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state card-plain">
+    <p class="mb-0">Nenhum agendamento encontrado com esses filtros.</p>
+  </div>
+{% endif %}
+{% endblock %}

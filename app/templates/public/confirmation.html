@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Agendamento confirmado{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="summary-card">
+      <div class="summary-icon" aria-hidden="true">&#10003;</div>
+      <h1>Solicitação recebida!</h1>
+      <p>Seu horário foi reservado. Guarde o código abaixo para consultar ou cancelar quando precisar.</p>
+
+      <div class="code-box">
+        <div class="code">{{ appointment.code }}</div>
+        <p class="mb-0 muted">Código do agendamento</p>
+      </div>
+
+      <div class="summary-row">
+        <span class="label">Serviço</span>
+        <span class="value">{{ appointment.service.name }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Data</span>
+        <span class="value">{{ appointment.date.strftime('%d/%m/%Y') }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Horário</span>
+        <span class="value">{{ appointment.start_time.strftime('%H:%M') }} às {{ appointment.end_time.strftime('%H:%M') }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Cliente</span>
+        <span class="value">{{ appointment.client_name }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Contato</span>
+        <span class="value">{{ appointment.client_contact }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Status</span>
+        <span class="value"><span class="badge badge-{{ appointment.status }}">{{ appointment.status_label }}</span></span>
+      </div>
+
+      <div class="row mt-2">
+        <a class="btn btn-secondary" href="{{ url_for('public.index') }}">Agendar outro serviço</a>
+        <a class="btn btn-primary" href="{{ url_for('public.manage') }}?code={{ appointment.code }}">Ver meu agendamento</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

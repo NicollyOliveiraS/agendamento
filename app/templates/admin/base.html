@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Painel · {{ business_settings.business_name if business_settings else "Agendamento" }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a class="brand" href="{{ url_for('admin.dashboard') }}">
+        <span class="brand-mark">{{ business_settings.business_name if business_settings else "Meu Negócio" }}</span>
+        <span class="brand-sub">Painel do negócio</span>
+      </a>
+
+      <button type="button" class="mobile-nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="admin-nav">
+        Menu
+      </button>
+
+      <nav class="admin-nav" id="admin-nav" aria-label="Navegação do painel">
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Visão geral</a>
+        <a href="{{ url_for('admin.appointments') }}" class="{{ 'active' if request.endpoint == 'admin.appointments' }}">Agendamentos</a>
+        <a href="{{ url_for('admin.services') }}" class="{{ 'active' if request.endpoint == 'admin.services' }}">Serviços</a>
+        <a href="{{ url_for('admin.schedule_settings') }}" class="{{ 'active' if request.endpoint == 'admin.schedule_settings' }}">Horários e políticas</a>
+        <a href="{{ url_for('admin.blocks') }}" class="{{ 'active' if request.endpoint == 'admin.blocks' }}">Bloqueios</a>
+        <a href="{{ url_for('public.index') }}" target="_blank" rel="noopener">Ver site público &#8599;</a>
+      </nav>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div></div>
+        <div class="admin-user">
+          <button type="button" class="theme-toggle-btn" aria-label="Alternar tema">
+            <span class="icon-moon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Escuro</span>
+            <span class="icon-sun"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> Claro</span>
+          </button>
+          <span>Olá, {{ current_user.nome_completo }}</span>
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.logout') }}">Sair</a>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flash-list" role="status">
+            {% for category, message in messages %}
+              <li class="flash flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

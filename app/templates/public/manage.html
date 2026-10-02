@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Meu agendamento{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1>Consultar meu agendamento</h1>
+    <p class="muted">Informe o código de 7 caracteres recebido na confirmação.</p>
+
+    <form class="form-card" method="POST" action="{{ url_for('public.manage') }}">
+      <div class="field">
+        <label for="code">Código do agendamento</label>
+        <input type="text" id="code" name="code" maxlength="10" style="text-transform:uppercase"
+               value="{{ request.args.get('code', '') }}" placeholder="Ex.: A1B2C3D" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Consultar</button>
+    </form>
+
+    {% if searched and appointment %}
+      <div class="summary-card mt-2">
+        <h2 class="mt-0">Detalhes do agendamento</h2>
+
+        <div class="summary-row">
+          <span class="label">Código</span>
+          <span class="value">{{ appointment.code }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Serviço</span>
+          <span class="value">{{ appointment.service.name }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Data</span>
+          <span class="value">{{ appointment.date.strftime('%d/%m/%Y') }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Horário</span>
+          <span class="value">{{ appointment.start_time.strftime('%H:%M') }} às {{ appointment.end_time.strftime('%H:%M') }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Cliente</span>
+          <span class="value">{{ appointment.client_name }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Status</span>
+          <span class="value"><span class="badge badge-{{ appointment.status }}">{{ appointment.status_label }}</span></span>
+        </div>
+
+        {% if appointment.status in ("pendente", "confirmado") %}
+          {% if can_cancel_fn(appointment) %}
+            <form method="POST" action="{{ url_for('public.cancel', code=appointment.code) }}" class="mt-2"
+                  onsubmit="return confirm('Tem certeza que deseja cancelar este agendamento?');">
+              <button type="submit" class="btn btn-danger btn-block">Cancelar agendamento</button>
+            </form>
+          {% else %}
+            <p class="field-error mt-2">
+              O prazo mínimo para cancelamento online já passou. Entre em contato diretamente com
+              {{ business_settings.business_name if business_settings else "o negócio" }}.
+            </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "admin/base.html" %}
+{% block title %}Serviços · Painel{% endblock %}
+
+{% block content %}
+<h1>Serviços</h1>
+<p class="muted">Cadastre os serviços oferecidos. Serviços desativados somem do site público, mas mantêm o histórico de agendamentos.</p>
+
+<div class="card-plain">
+  <h2 class="mt-0">Novo serviço</h2>
+  <form method="POST" action="{{ url_for('admin.services') }}">
+    <div class="row">
+      <div class="field" style="flex:2; min-width:220px;">
+        <label for="name">Nome do serviço</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="field" style="min-width:140px;">
+        <label for="duration_minutes">Duração (min)</label>
+        <input type="number" id="duration_minutes" name="duration_minutes" min="5" max="600" step="5" required>
+      </div>
+      <div class="field" style="min-width:140px;">
+        <label for="price">Preço (R$)</label>
+        <input type="number" id="price" name="price" min="0" step="0.01" required>
+      </div>
+    </div>
+    <div class="field">
+      <label for="description">Descrição</label>
+      <textarea id="description" name="description" maxlength="400" placeholder="O que está incluso, materiais, observações..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Cadastrar serviço</button>
+  </form>
+</div>
+
+<h2 class="mt-2">Serviços cadastrados</h2>
+
+{% if services %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Duração</th>
+          <th>Preço</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for service in services %}
+          <tr>
+            <td>{{ service.name }}</td>
+            <td>{{ service.duration_formatted }}</td>
+            <td>{{ service.price_formatted }}</td>
+            <td>
+              {% if service.active %}
+                <span class="badge badge-confirmado">Ativo</span>
+              {% else %}
+                <span class="badge badge-cancelado">Inativo</span>
+              {% endif %}
+            </td>
+            <td class="actions">
+              <button type="button" class="btn btn-secondary btn-sm js-edit-toggle" data-target="edit-{{ service.id }}">Editar</button>
+              <form method="POST" action="{{ url_for('admin.toggle_service', service_id=service.id) }}">
+                <button type="submit" class="btn {{ 'btn-danger' if service.active else 'btn-secondary' }} btn-sm">
+                  {{ 'Desativar' if service.active else 'Ativar' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          <tr id="edit-{{ service.id }}" style="display:none;">
+            <td colspan="5">
+              <form method="POST" action="{{ url_for('admin.edit_service', service_id=service.id) }}" class="stack">
+                <div class="row">
+                  <div class="field" style="flex:2; min-width:200px;">
+                    <label for="name-{{ service.id }}">Nome</label>
+                    <input type="text" id="name-{{ service.id }}" name="name" value="{{ service.name }}" required>
+                  </div>
+                  <div class="field" style="min-width:130px;">
+                    <label for="duration-{{ service.id }}">Duração (min)</label>
+                    <input type="number" id="duration-{{ service.id }}" name="duration_minutes" value="{{ service.duration_minutes }}" min="5" max="600" step="5" required>
+                  </div>
+                  <div class="field" style="min-width:130px;">
+                    <label for="price-{{ service.id }}">Preço (R$)</label>
+                    <input type="number" id="price-{{ service.id }}" name="price" value="{{ service.price }}" min="0" step="0.01" required>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="desc-{{ service.id }}">Descrição</label>
+                  <textarea id="desc-{{ service.id }}" name="description" maxlength="400">{{ service.description }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Salvar alterações</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state card-plain">
+    <p class="mb-0">Nenhum serviço cadastrado ainda.</p>
+  </div>
+{% endif %}
+{% endblock %}

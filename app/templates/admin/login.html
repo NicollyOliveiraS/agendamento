@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login · Painel do negócio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card">
+      <h1>Painel do negócio</h1>
+      <p class="muted">Entre com suas credenciais para gerenciar os agendamentos.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flash-list" role="status">
+            {% for category, message in messages %}
+              <li class="flash flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="mt-1">
+        <div class="field">
+          <label for="username">Usuário</label>
+          <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+      </form>
+
+      <div class="demo-hint">
+        <strong>Demonstração:</strong> usuário <code>admin</code> · senha <code>admin123</code>
+      </div>
+
+      <p class="mt-1"><a href="{{ url_for('public.index') }}">&larr; Voltar ao site público</a></p>
+    </div>
+  </div>
+</body>
+</html>

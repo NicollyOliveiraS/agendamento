@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+{% block title %}Visão geral · Painel{% endblock %}
+
+{% block content %}
+<h1>Visão geral</h1>
+<p class="muted">Semana de {{ start_of_week.strftime('%d/%m') }} a {{ end_of_week.strftime('%d/%m') }}</p>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">{{ kpi_week_total }}</div>
+    <div class="kpi-label">Agendamentos ativos na semana</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">{{ kpi_cancelled }}</div>
+    <div class="kpi-label">Cancelamentos na semana</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label mb-0">Serviços mais procurados</div>
+    {% if top_services %}
+      <ul class="kpi-list">
+        {% for name, count in top_services %}
+          <li><span>{{ name }}</span><strong>{{ count }}</strong></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted mb-0 mt-1">Sem dados essa semana.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row-between">
+  <h2 class="mb-0">Hoje · {{ today.strftime('%d/%m/%Y') }}</h2>
+  <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.appointments', date=today.isoformat()) }}">Ver lista completa</a>
+</div>
+
+{% if today_appointments %}
+  <div class="table-wrap mt-1">
+    <table>
+      <thead>
+        <tr>
+          <th>Horário</th>
+          <th>Cliente</th>
+          <th>Serviço</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in today_appointments %}
+          <tr>
+            <td>{{ appt.start_time.strftime('%H:%M') }} – {{ appt.end_time.strftime('%H:%M') }}</td>
+            <td>{{ appt.client_name }}</td>
+            <td>{{ appt.service.name }}</td>
+            <td><span class="badge badge-{{ appt.status }}">{{ appt.status_label }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state card-plain mt-1">
+    <p class="mb-0">Nenhum agendamento para hoje.</p>
+  </div>
+{% endif %}
+
+<h2 class="mt-2">Semana</h2>
+<div class="week-grid">
+  {% for day in week_days %}
+    <div class="week-day {{ 'is-today' if day.date == today }}">
+      <div class="week-day-header">{{ day.date.strftime('%a · %d/%m') }}</div>
+      {% if day.appointments %}
+        {% for appt in day.appointments %}
+          <div class="week-appt">{{ appt.start_time.strftime('%H:%M') }} · {{ appt.client_name }}</div>
+        {% endfor %}
+      {% else %}
+        <p class="muted" style="font-size:0.78rem;">Sem agendamentos</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

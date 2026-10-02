@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ business_settings.business_name }} — Agendamento de Serviços{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Plataforma de Agendamento Oficial
+    </div>
+    <h1>Agende seu horário com facilidade e praticidade</h1>
+    <p class="lead">Escolha o serviço desejado, selecione o melhor horário disponível e confirme seu atendimento em instantes sem complicações.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Serviços Disponíveis</h2>
+      <p class="muted">Selecione uma das opções abaixo para iniciar o seu agendamento online.</p>
+    </div>
+
+    {% if services %}
+      <div class="service-grid">
+        {% for service in services %}
+          <article class="service-card">
+            <h3>{{ service.name }}</h3>
+            <div class="service-meta">
+              <span class="pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ service.duration_formatted }}
+              </span>
+            </div>
+            <p class="desc">{{ service.description or "Atendimento especializado com horário reservado." }}</p>
+            <div class="price">{{ service.price_formatted }}</div>
+            <a class="btn btn-primary btn-block" href="{{ url_for('public.booking', service_id=service.id) }}">
+              Agendar Horário
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state card-plain">
+        <p>Nenhum serviço disponível para agendamento no momento.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" style="border-top: 1px solid var(--line); background: var(--paper-raised);">
+  <div class="container">
+    <div class="section-header">
+      <h2>Por que agendar conosco?</h2>
+      <p class="muted">Garantia de conveniência, agilidade e gestão simplificada dos seus horários.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <h3>Confirmação Imediata</h3>
+        <p>Seu horário fica reservado no sistema imediatamente no momento da finalização.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Gestão Simples</h3>
+        <p>Receba um código exclusivo para consultar ou gerenciar seu agendamento quando precisar.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Atendimento Sem Espera</h3>
+        <p>Horários organizados para garantir pontualidade e dedicação total no seu atendimento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

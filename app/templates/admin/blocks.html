@@ -1,0 +1,96 @@
+{% extends "admin/base.html" %}
+{% block title %}Bloqueios · Painel{% endblock %}
+
+{% block content %}
+<h1>Bloqueios manuais</h1>
+<p class="muted">Use para folgas, feriados, manutenção ou qualquer horário que não deve ficar disponível para agendamento.</p>
+
+<div class="card-plain">
+  <h2 class="mt-0">Novo bloqueio</h2>
+  <form method="POST" action="{{ url_for('admin.blocks') }}" id="block-form">
+    <div class="field">
+      <label for="date">Data</label>
+      <input type="date" id="date" name="date" min="{{ today.isoformat() }}" required>
+    </div>
+
+    <div class="checkbox-row mb-0" style="margin-bottom: 0.9rem;">
+      <input type="checkbox" id="full_day" name="full_day" checked>
+      <label for="full_day" class="mb-0">Bloquear o dia inteiro</label>
+    </div>
+
+    <div class="row" id="partial-time-fields" style="display:none;">
+      <div class="field" style="min-width:140px;">
+        <label for="start_time">Das</label>
+        <input type="time" id="start_time" name="start_time">
+      </div>
+      <div class="field" style="min-width:140px;">
+        <label for="end_time">Até</label>
+        <input type="time" id="end_time" name="end_time">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="reason">Motivo (opcional)</label>
+      <input type="text" id="reason" name="reason" maxlength="200" placeholder="Ex.: Feriado, manutenção, compromisso pessoal">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Criar bloqueio</button>
+  </form>
+</div>
+
+<h2 class="mt-2">Bloqueios futuros</h2>
+
+{% if blocks %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Período</th>
+          <th>Motivo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for block in blocks %}
+          <tr>
+            <td>{{ block.date.strftime('%d/%m/%Y') }}</td>
+            <td>
+              {% if block.is_full_day %}
+                Dia inteiro
+              {% else %}
+                {{ block.start_time.strftime('%H:%M') }} – {{ block.end_time.strftime('%H:%M') }}
+              {% endif %}
+            </td>
+            <td>{{ block.reason or "—" }}</td>
+            <td class="actions">
+              <form method="POST" action="{{ url_for('admin.delete_block', block_id=block.id) }}"
+                    onsubmit="return confirm('Remover este bloqueio?');">
+                <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state card-plain">
+    <p class="mb-0">Nenhum bloqueio futuro cadastrado.</p>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const fullDay = document.getElementById("full_day");
+    const partialFields = document.getElementById("partial-time-fields");
+    function toggle() {
+      partialFields.style.display = fullDay.checked ? "none" : "flex";
+    }
+    fullDay.addEventListener("change", toggle);
+    toggle();
+  })();
+</script>
+{% endblock %}
