@@ -191,6 +191,50 @@ Nenhuma dessas mudanças exige alterar código — tudo é feito pelo painel.
 
 ## Notas para produção
 
+### Publicação na Vercel
+
+O projeto define `run:app` como entrada Flask em `pyproject.toml` e usa
+`vercel.json` para configurar o build. O comando `python build.py` copia CSS e JavaScript para
+`public/static/`, mantendo os endereços `/static/...` usados nos templates.
+
+1. Importe o repositório na Vercel com a pasta raiz do projeto e o framework
+   **Flask**. Remova configurações antigas de build/output de outros frameworks;
+   o build está definido em `vercel.json`.
+2. Conecte um banco **PostgreSQL externo** e configure `DATABASE_URL` nas
+   variáveis de ambiente dos ambientes desejados (Production/Preview).
+   Use a URL fornecida pelo provedor, incluindo os parâmetros de SSL.
+   URLs `postgres://` e `postgresql://` são aceitas.
+3. Configure também `SECRET_KEY` com um valor aleatório e estável. Você pode
+   gerar um localmente com `python -c "import secrets; print(secrets.token_hex(32))"`.
+4. Publique novamente depois de salvar essas variáveis. As tabelas são
+   criadas na inicialização; o banco precisa permitir a criação delas.
+
+SQLite continua disponível para uso local. Na Vercel, um arquivo SQLite
+não é um banco persistente compartilhado entre execuções. O projeto rejeita
+essa configuração para evitar perda de agendamentos.
+
+Um banco novo começa sem serviços e sem administrador. Para cadastrar o
+primeiro administrador, instale as dependências localmente, configure
+`DATABASE_URL` para o mesmo banco e execute `python -m flask --app run shell`:
+
+```python
+from getpass import getpass
+from app.extensions import db
+from app.models import AdminUser
+admin = AdminUser(username="admin", nome_completo="Responsável")
+admin.set_password(getpass("Senha do administrador: "))
+db.session.add(admin)
+db.session.commit()
+```
+
+Depois entre em `/admin/login` para cadastrar serviços e horários.
+Não execute `seed.py` em um banco com dados reais: ele apaga todas as tabelas
+antes de inserir a demonstração. Os dados do SQLite local não são migrados
+automaticamente para o PostgreSQL.
+
+Referências: [Flask na Vercel](https://vercel.com/docs/frameworks/backend/flask)
+e [limitação do SQLite](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel).
+
 Este projeto está pronto para demonstração e uso local. Para um ambiente de
 produção real, vale complementar com:
 
